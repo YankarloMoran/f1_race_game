@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>F1 3D Daylight Racer - Monza GP</title>
+    <!-- Fuentes Premium F1 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <!-- Prompt interactivo de audio obligatorio -->
+    <div id="audio-prompt">
+      🏎️ CLICK PARA INICIAR MOTOR
+      <span>PULSA CUALQUIER TECLA O HAZ CLICK PARA JUGAR CON SONIDO</span>
+    </div>
+
+    <!-- MENÚ PRINCIPAL PREMIUM -->
+    <div id="main-menu">
+      <div class="menu-header">
+        <div class="menu-logo">F1</div>
+        <div class="menu-title">GRAND PRIX 3D</div>
+        <div class="menu-subtitle">SELECCIONA TU CIRCUITO</div>
+      </div>
+      <div class="track-grid">
+        <div class="track-card" onclick="window.startRace('monza')">
+          <div class="track-flag">🇮🇹</div>
+          <div class="track-name">MONZA</div>
+          <div class="track-desc">El Templo de la Velocidad</div>
+        </div>
+        <div class="track-card" onclick="window.startRace('spa')">
+          <div class="track-flag">🇧🇪</div>
+          <div class="track-name">SPA</div>
+          <div class="track-desc">Eau Rouge y las Ardenas</div>
+        </div>
+        <div class="track-card" onclick="window.startRace('monaco')">
+          <div class="track-flag">🇲🇨</div>
+          <div class="track-name">MÓNACO</div>
+          <div class="track-desc">Las calles más famosas</div>
+        </div>
+        <div class="track-card" onclick="window.startRace('silverstone')">
+          <div class="track-flag">🇬🇧</div>
+          <div class="track-name">SILVERSTONE</div>
+          <div class="track-desc">La cuna del automovilismo</div>
+        </div>
+        <div class="track-card" onclick="window.startRace('suzuka')">
+          <div class="track-flag">🇯🇵</div>
+          <div class="track-name">SUZUKA</div>
+          <div class="track-desc">La legendaria figura de 8</div>
+        </div>
+      </div>
+      <div class="menu-footer">
+        <div class="menu-controls">W/↑ Acelerar · S/↓ Frenar · A/D Girar · Space Freno · Shift DRS · C Cámara</div>
+      </div>
+    </div>
+
+    <!-- SEMÁFORO DE SALIDA ESTILO F1 -->
+    <div id="start-lights-container">
+      <div class="light-pillar">
+        <div class="light-bulb" id="light-0"></div>
+        <div class="light-bulb" id="light-1"></div>
+        <div class="light-bulb" id="light-2"></div>
+        <div class="light-bulb" id="light-3"></div>
+        <div class="light-bulb" id="light-4"></div>
+      </div>
+      <div id="go-signal">¡SALIDA! GO GO GO!</div>
+    </div>
+    <!-- PAUSE MENU -->
+    <div id="pause-menu">
+      <div class="pause-title">⏸ PAUSA</div>
+      <button class="pause-btn" onclick="document.getElementById('pause-menu').style.display='none'">▶ REANUDAR (Esc)</button>
+      <button class="pause-btn" onclick="location.reload()">🔄 REINICIAR CARRERA</button>
+      <button class="pause-btn" onclick="location.reload()">🏠 MENÚ PRINCIPAL</button>
+      <div class="pause-hint">R — Activar/desactivar lluvia</div>
+    </div>
+
+    <!-- PANTALLA DNF (DID NOT FINISH) -->
+    <div id="dnf-screen">
+      <div class="dnf-title">💥 COCHE RETIRADO (DNF) 💥</div>
+      <div class="dnf-subtitle">El monoplaza ha sufrido daños mecánicos estructurales catastróficos.</div>
+      <button class="restart-btn" onclick="location.reload()">REINTENTAR CARRERA</button>
+    </div>
+
+    <!-- PANTALLA DE GANADOR -->
+    <div id="win-screen">
+      <div class="win-title">🏆 ¡VICTORIA EN MONZA! 🏆</div>
+      <div class="win-subtitle">Has ganado el Gran Premio de Italia. ¡Excelente conducción!</div>
+      <button class="restart-btn" onclick="location.reload()">VOLVER A CORRER</button>
+    </div>
+
+    <!-- ANIMACIÓN DE PARADA EN PITS (CAMBIO DE NEUMÁTICOS) -->
+    <div id="pit-stop-overlay">
+      <div class="pit-box-title">🔧 BOX BOX BOX 🔧</div>
+      <div id="pit-current-tyre" style="font-size: 14px; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; color: #ffffff;">COMPUESTO ACTUAL: SOFT</div>
+      <div class="pit-box-animation">REPARANDO DAÑOS Y AJUSTANDO NEUMÁTICOS...</div>
+      <div style="font-size: 12px; margin-top: 8px; margin-bottom: 16px; color: #a1a1aa; font-family: 'Orbitron', sans-serif;">Presiona <span style="color: #e63946; font-weight: bold;">[1] SOFT</span>, <span style="color: #ffb703; font-weight: bold;">[2] MEDIUM</span> o <span style="color: #ffffff; font-weight: bold;">[3] HARD</span> para cambiar</div>
+      <div class="pit-progress-container">
+        <div id="pit-progress-bar"></div>
+      </div>
+    </div>
+
+    <div id="app"></div>
+    
+    <div id="hud">
+      <!-- Top Left: F1 Leaderboard & Status -->
+      <div id="top-left-hud">
+        <div id="leaderboard-panel">
+          <div class="leaderboard-header" id="leaderboard-header">POSICIONES (VTA 1/3)</div>
+          <div id="leaderboard-rows"></div>
+        </div>
+        
+        <div id="weather-indicator">🌧 PISTA MOJADA</div>
+        
+        <div class="side-panels">
+          <div id="damage-panel">
+            <div class="panel-header">DAÑOS <span id="damage-value">100%</span></div>
+            <div id="damage-bar"><div id="damage-fill"></div></div>
+          </div>
+          <div id="tyre-panel">
+            <div class="panel-header">NEUMÁTICOS <span id="tyre-wear-val">0.0%</span></div>
+            <div id="tyre-compound-badge"><span id="tyre-compound-val">SOFT</span></div>
+            <div id="tyre-bar"><div id="tyre-fill"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Right: Laps & Timing -->
+      <div id="top-right-hud">
+        <div id="lap-time">
+          <div class="lap-label">VUELTA</div>
+          <div class="lap-main" id="lap-value">0:00.00</div>
+          <div id="best-lap">MEJOR: <span id="best-lap-value">--:--.--</span></div>
+        </div>
+      </div>
+
+      <!-- Alertas Centrales -->
+      <div id="alerts-container">
+        <div id="off-track-alert">⚠️ AVISO: LÍMITES DE PISTA</div>
+        <div id="pit-limiter-alert">PIT LIMITER</div>
+      </div>
+
+      <!-- Bottom Right: F1 Telemetry Dash -->
+      <div id="bottom-right-hud">
+        <div class="telemetry-dash">
+          <div class="dash-row top-row">
+            <div id="ers-container">
+              <div id="ers-label">ERS</div>
+              <div id="ers-bar-bg"><div id="ers-fill"></div></div>
+              <div id="ers-value">100%</div>
+            </div>
+            <div id="drs-container">
+              <div id="drs-label">DRS</div>
+              <div id="drs-status">OFF</div>
+            </div>
+          </div>
+          
+          <div class="dash-row speed-row">
+            <div id="speedometer"><span id="speed-value">0</span><small>km/h</small></div>
+            <!-- El indicador de marcha podría ir aquí si existiera, o logo de F1 -->
+            <div class="f1-dash-logo">F1</div>
+          </div>
+          
+          <div id="rpm-bar"><div id="rpm-fill"></div></div>
+        </div>
+      </div>
+
+      <!-- Bottom Left: Minimapa F1 -->
+      <div id="minimap-container">
+        <svg id="minimap" viewBox="-210 -150 460 510">
+          <path id="minimap-track" d="" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+          <circle id="player-dot" r="12" fill="#e10600" stroke="#ffffff" stroke-width="3" />
+          <circle id="ai-dot-0" r="9" fill="#fadb00" />
+          <circle id="ai-dot-1" r="9" fill="#00a0d6" />
+          <circle id="ai-dot-2" r="9" fill="#dc0000" />
+          <circle id="ai-dot-3" r="9" fill="#ff8700" />
+          <circle id="ai-dot-4" r="9" fill="#005d59" />
+        </svg>
+      </div>
+    </div>
+    
+    <script type="module" src="/src/main.js"></script>
+    
+    <script>
+      // Remover el prompt de audio al interactuar
+      const dismissPrompt = () => {
+        const prompt = document.getElementById('audio-prompt');
+        if (prompt) {
+          prompt.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+          prompt.style.opacity = '0';
+          prompt.style.transform = 'translate(-50%, -60%) scale(0.9)';
+          setTimeout(() => prompt.remove(), 500);
+        }
+        window.removeEventListener('click', dismissPrompt);
+        window.removeEventListener('keydown', dismissPrompt);
+      };
+      window.addEventListener('click', dismissPrompt);
+      window.addEventListener('keydown', dismissPrompt);
+    </script>
+  </body>
+</html>
